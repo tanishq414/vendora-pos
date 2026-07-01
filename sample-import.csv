@@ -1,0 +1,11 @@
+Name,Price,MRP,Type,Quantity,SKU,Cost,Category,ReorderAt,ReorderQty
+Milk Packet 500ml,60,100,packet,50,MIL001,45,Dairy,10,20
+Butter 200g,120,150,packet,30,BUT001,90,Dairy,5,10
+Sugar 1kg,80,120,loose,100,SUG001,60,Staples,20,50
+Rice Basmati 1kg,150,200,loose,80,RIC001,110,Staples,15,40
+Oil Sunflower 1L,180,250,loose,40,OIL001,140,Oils,10,25
+Bread Sliced,40,60,packet,60,BRE001,25,Bakery,15,30
+Eggs Dozen,180,250,packet,20,EGG001,140,Dairy,5,15
+Yogurt 500ml,50,80,packet,40,YOG001,35,Dairy,10,20
+Tea Powder 500g,200,280,loose,25,TEA001,150,Beverages,5,15
+Coffee Powder 250g,150,200,loose,20,COF001,110,Beverages,5,10

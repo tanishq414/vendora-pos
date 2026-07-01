@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vendora — POS System</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="style-responsive.css">
+</head>
+<body>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#9d5dff">
+<div class="app">
+    <!-- App Info Bar -->
+    <div style="background:#f5f5f5;padding:6px 16px;font-size:13px;color:#444;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;">
+        <span><strong>Vendora POS</strong> <span style="color:#9d5dff;">v1.0.0</span> &mdash; <span>Vendora Technologies Pvt Ltd</span></span>
+        <span>Support: <a href="tel:+916307948464" style="color:#2196F3;text-decoration:none;">+91-6307948464</a> | <a href="https://wa.me/916307948464" target="_blank" style="color:#25D366;text-decoration:none;">WhatsApp</a></span>
+    </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-title">Vendora</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-page="dashboard">Dashboard</button>
+            <button class="nav-tab" data-page="inventory">Inventory</button>
+            <button class="nav-tab" data-page="predictions">Predictions</button>
+            <button class="nav-tab" data-page="billing">Billing</button>
+            <button class="nav-tab" data-page="purchases">Purchases</button>
+            <button class="nav-tab" data-page="returns">Returns</button>
+            <button class="nav-tab" data-page="expenses">Expenses</button>
+            <button class="nav-tab" data-page="reports">Reports</button>
+            <button class="nav-tab" data-page="settings">Settings</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p id="dashboardDateRange">Showing data for today</p>
+            </div>
+
+            <!-- Filters & Controls -->
+            <div class="dashboard-filters">
+                <div class="filter-group">
+                    <label for="startDate">From</label>
+                    <input type="date" id="startDate">
+                    <label for="endDate">To</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-group">
+                    <select id="paymentMethodFilter" class="filter-select">
+                        <option value="">All Payment Methods</option>
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="staffNameFilter" class="filter-select">
+                        <option value="">All Staff</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button id="applyFilters" class="btn-primary">Apply</button>
+                    <button id="resetFilters" class="btn-secondary">Reset</button>
+                </div>
+            </div>
+
+            <!-- Top Metrics -->
+            <div class="dashboard-top-metrics">
+                <div class="metric-card profit">
+                    <div class="metric-icon">💰</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Profit</div>
+                        <div class="metric-value">₹<span id="profitAmount">0.00</span></div>
+                        <div class="metric-subtitle">Sales minus expenses for period</div>
+                    </div>
+                </div>
+
+                <div class="metric-card revenue">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <div class="metric-label">Revenue</div>
+                        <div class="metric-value">₹<span id="revenueAmount">0.00</span></div>
+                        <div class="metric-subtitle">Total sales generated</div>
+                    </div>
+                </div>
+
+                    <div class="metric-card sales">
+                        <div class="metric-icon">📅</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Daily Sales</div>
+                            <div class="metric-value">₹<span id="dailySalesAmount">0.00</span></div>
+                            <div class="metric-subtitle"><span id="dailySalesDate">Today</span></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card products">
+                        <div class="metric-icon">📦</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Products in Stock</div>
+                            <div class="metric-value"><span id="productsInStock">0</span></div>
+                            <div class="metric-subtitle">Count of active items</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card customers">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Customers</div>
+                            <div class="metric-value"><span id="customerCount">0</span></div>
+                            <div class="metric-subtitle">Unique customers this period</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card transactions">
+                        <div class="metric-icon">🧾</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Transactions</div>
+                            <div class="metric-value"><span id="transactionCount">0</span></div>
+                            <div class="metric-subtitle">Bills in selected period</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card avg-ticket">
+                        <div class="metric-icon">💳</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Avg Ticket</div>
+                            <div class="metric-value">₹<span id="avgTicketAmount">0.00</span></div>
+                            <div class="metric-subtitle">Average sale value</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card expiry">
+                        <div class="metric-icon">⏳</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Expiry Alerts</div>
+                            <div class="metric-value"><span id="expiryAlertsCount">0</span></div>
+                            <div class="metric-subtitle">Within 30 days</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card low-stock">
+                        <div class="metric-icon">⚠️</div>
+                        <div class="metric-content">
+                            <div class="metric-label">Low Stock Items</div>
+                            <div class="metric-value"><span id="lowStockCount">0</span></div>
+                            <div class="metric-subtitle">Needs reorder</div>
+                        <div class="info-subtitle">AI-generated advice based on your data.</div>
+                        <div id="autoInsights" class="insights-list">
+                            <div class="insight-item">📊 No sales insights available.</div>
+                            <div class="insight-item">⚠️ No stock alerts available.</div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-header">📦 Stock Alerts</div>
+                        <div class="info-subtitle">Items running low on stock.</div>
+                        <div id="stockAlertsList" class="alerts-list">
+                            <div class="alert-item">No items currently low on stock.</div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-header">💡 Smart Tip</div>
+                        <div class="info-subtitle">Advice to boost your business</div>
+                        <div id="smartTip" class="smart-tip-content">
+                            "Engage with customers and ask for feedback to improve your service."
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Page -->
+        <div class="page" id="inventory">
+            <h1>Inventory Management</h1>
+            <section class="card">
+                <h2>Products</h2>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input id="searchInput" placeholder="Search by name, SKU... (Alt+Q)" type="text" title="Alt+Q">
+                        <button id="voiceSearchBtn" title="Click to speak">🎤 Voice Search</button>
+                        <button id="focusBarcodeBtn" title="Focus barcode input" class="btn-secondary" style="margin-left:6px;">🔍 Scan</button>
+                    </div>
+                    <div style="margin-left:12px;display:flex;align-items:center;gap:8px;">
+                        <select id="inventoryCategoryFilter" style="padding:6px;border-radius:6px;border:1px solid #ddd;background:white;">
+                            <option value="">All Categories</option>
+                        </select>
+                        <button id="manageCategoriesBtn" class="btn-secondary" title="Manage categories">⚙️ Categories</button>
+                    </div>
+                    <button id="addItemBtn" class="btn-primary" title="Alt++">+ Add Product</button>
+                    <button id="inventoryScannerBtn" class="btn-primary" title="Scan barcode to add product to inventory">📱 Barcode Scanner</button>
+                    <button id="importCsvBtn" class="btn-primary" title="Bulk import products from CSV">📥 Import CSV</button>
+                </div>
+                <table id="itemsTable" class="items-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Price/kg</th>
+                            <th>MRP</th>
+                            <th>Cost/kg</th>
+                            <th>Quantity</th>
+                            <th>Reorder At</th>
+                            <th>SKU</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsBody">
+                        <tr><td colspan="11">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Predictions Page -->
+        <div class="page" id="predictions">
+            <h1>Reorder Predictions</h1>
+            <section class="card">
+                <h2>Items Running Low on Stock</h2>
+                <div id="predictionsTable">
+                    <p>Loading predictions...</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Billing Page -->
+        <div class="page" id="billing">
+            <h1>Billing</h1>
+            <div class="billing-layout">
+                <!-- Left: Cart & Items -->
+                <div class="billing-left">
+                    <section class="card">
+                        <h2>Shopping Cart</h2>
+                        <div class="cart-controls">
+                            <div class="control-row">
+                                <select id="billItemSelect" class="full-width"><option>Select item...</option></select>
+                                <input id="billQuantity" type="number" placeholder="Qty" step="0.01" min="0.01" value="1">
+                                <select id="billUnit" style="display: none; flex: 0 0 60px;">
+                                    <option value="kg">kg</option>
+                                    <option value="g" selected>g</option>
+                                </select>
+                                <input id="billPrice" type="number" placeholder="Price (₹)" style="display: none;">
+                                <button id="addToCartBtn" class="btn-primary">+ Add</button>
+                            </div>
+                            <div id="scannedProductName" style="display:none;margin:8px 0;padding:10px;background:rgba(0,255,0,0.1);border-radius:6px;border-left:4px solid #0f0;color:#0f0;font-weight:bold;font-size:14px;"></div>
+                            <div class="control-row">
+                                <button id="openBarcodeScanner" class="btn-primary" title="Scan barcode">📱 Barcode</button>
+                                <button id="voiceCartBtn" title="Speak: Add 2 packets of milk">🎤 Voice</button>
+                                <button id="clearCartBtn" class="btn-secondary" title="Alt+C">Clear Cart</button>
+                            </div>
+                        </div>
+                        <div id="cartItems" class="cart-items">
+                            <p style="color:#999">Cart is empty</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: Totals & Customer -->
+                <div class="billing-right">
+                    <section class="card">
+                        <h2>Bill Summary</h2>
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="billSubtotal">₹0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Discount:</span>
+                            <span id="billDiscount">-₹0.00</span>
+                        </div>
+                            <div class="summary-row">
+                                <span>Saved (vs MRP):</span>
+                                <span id="billSavings">-₹0.00</span>
+                            </div>
+                        <div class="summary-row">
+                            <span>Tax (0%):</span>
+                            <span id="billTax">₹0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="billTotal">₹0.00</span>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <h2>Customer & Loyalty</h2>
+                        <div class="control-row">
+                            <input id="customerName_input" placeholder="Customer name (optional)" type="text" class="full-width">
+                        </div>
+                        <div class="control-row">
+                            <input id="customerPhone" placeholder="Phone (optional)" type="tel" class="full-width">
+                            <button id="searchCustomerBtn">Search</button>
+                        </div>
+                        <div id="customerInfo" style="display:none;">
+                            <p><strong id="customerName">—</strong></p>
+                            <p>Loyalty Points: <span id="customerPoints">0</span></p>
+                            <p style="margin: 8px 0; padding: 8px; background: rgba(157,93,255,.1); border-radius: 6px;">
+                              <strong>Balance:</strong> 
+                              <span id="customerBalance" style="color: #0f0;">₹0.00</span>
+                              <small style="display: block; color: #999; margin-top: 4px;" id="balanceHint">Positive = credit, Negative = debt</small>
+                            </p>
+                            <div style="margin: 8px 0; padding: 8px; background: rgba(255,152,0,.08); border-radius: 6px; max-height: 200px; overflow-y: auto;" id="customerCreditsHistory"></div>
+                            <div class="control-row">
+                                <input id="loyaltyDiscount" type="number" placeholder="Use X points" min="0" step="1">
+                                <button id="applyLoyaltyBtn">Apply</button>
+                            </div>
+                        </div>
+                        <div id="noCustomer" style="text-align:center;color:#999;margin-top:8px;">
+                            <small>No customer selected</small>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <h2>Payment & Action</h2>
+                        <select id="paymentMethod" class="full-width">
+                            <option value="cash">💵 Cash (Immediate)</option>
+                            <option value="online">💳 Online (Card/UPI)</option>
+                            <option value="credit">📝 Credit (Pay Later)</option>
+                                <option value="debit">🏦 Debit (Record)</option>
+                        </select>
+                                                <small id="paymentHint" style="color: #999; display: block; margin-top: 6px;">
+                                                    Cash/Online = settled now | Credit = advance payment
+                                                </small>
+                        <div class="control-row" style="margin-top:12px;">
+                            <label for="amountPaidInput" style="display:block; font-size:13px; margin-bottom:4px; font-weight:500;">Amount Paid (₹)</label>
+                            <input id="amountPaidInput" type="number" step="0.01" min="0" placeholder="Leave empty for full amount" class="full-width" style="padding:8px;">
+                            <small id="amountPaidHint" style="color:#666; display:block; margin-top:4px;">Leave blank = customer pays full total. Enter amount for partial payment.</small>
+                        </div>
+                        <div id="dueCustomerFields" style="display:none;margin-top:8px;">
+                            <label style="display:block;font-size:13px;margin-bottom:4px;font-weight:500;">Record customer for due (optional)</label>
+                            <input id="dueCustomerName" type="text" placeholder="Customer name (optional)" class="full-width" style="padding:8px;margin-bottom:6px;">
+                            <input id="dueCustomerPhone" type="tel" placeholder="Phone (optional)" class="full-width" style="padding:8px;">
+                            <small style="color:#666;display:block;margin-top:4px;">If left blank, the due will be recorded as Walk-in.</small>
+                        </div>
+                        <div class="control-row" style="margin-top:8px;">
+                            <button id="generateBillBtn" class="btn-primary full-width" title="Alt+G">Generate Bill</button>
+                        </div>
+                        <div class="control-row" style="margin-top:8px;gap:4px;">
+                            <button id="printBillBtn" class="btn-secondary">📄 Print</button>
+                            <button id="shareBillBtn" class="btn-secondary">📱 Share</button>
+                        </div>
+                    </section>
+                </div>
+
+                        <!-- Debit Modal -->
+                        <div id="debitModal" class="modal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2>Record Debit</h2>
+                                    <button class="modal-close" onclick="closeDebitModal()">&times;</button>
+                                </div>
+                                <form id="debitForm" onsubmit="event.preventDefault(); submitDebitForm();">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input id="debitName" type="text" placeholder="Customer name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Phone (optional)</label>
+                                        <input id="debitPhone" type="tel" placeholder="Phone number (optional)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Amount (₹)</label>
+                                        <input id="debitAmount" type="number" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date</label>
+                                        <input id="debitDate" type="date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Total (₹)</label>
+                                        <input id="debitTotal" type="number" step="0.01" min="0" required readonly>
+                                    </div>
+                                    <div class="modal-actions">
+                                        <button type="submit" class="btn-primary">Save Debit & Continue</button>
+                                        <button type="button" class="btn-secondary" onclick="closeDebitModal()">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+            </div>
+        </div>
+
+        <!-- Expenses Page -->
+        <div class="page" id="expenses">
+            <h1>Expense Tracker</h1>
+            <p style="color:#999;margin-bottom:20px;">Record and manage all your operational expenses.</p>
+            <div class="expenses-layout">
+                <!-- Left: Add Expense Form -->
+                <div class="expenses-left">
+                    <section class="card">
+                        <h2>Add Expense</h2>
+                        <form id="expenseForm">
+                            <div class="form-group">
+                                <label>Description <span class="required">*</span></label>
+                                <input id="expenseDescription" placeholder="e.g., Office rent, Electricity bill" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Category <span class="required">*</span></label>
+                                <select id="expenseCategory" required>
+                                    <option value="">Select category...</option>
+                                    <option value="rent">Rent</option>
+                                    <option value="utilities">Utilities (Water, Electricity)</option>
+                                    <option value="salary">Salary & Wages</option>
+                                    <option value="equipment">Equipment & Supplies</option>
+                                    <option value="maintenance">Maintenance & Repairs</option>
+                                    <option value="transportation">Transportation</option>
+                                    <option value="advertising">Advertising & Marketing</option>
+                                    <option value="insurance">Insurance</option>
+                                    <option value="miscellaneous">Miscellaneous</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Amount (₹) <span class="required">*</span></label>
+                                    <input id="expenseAmount" type="number" step="0.01" min="0" required placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date <span class="required">*</span></label>
+                                    <input id="expenseDate" type="date" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Notes (Optional)</label>
+                                <textarea id="expenseNotes" placeholder="Add any additional details..."></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="submit" class="btn-primary full-width">+ Add Expense</button>
+                            </div>
+                        </form>
+                    </section>
+                </div>
+                
+                <!-- Right: Expense History -->
+                <div class="expenses-right">
+                    <section class="card">
+                        <h2>Expense History</h2>
+                        <div class="expenses-filters">
+                            <input id="expenseSearch" type="text" placeholder="Search by description or cate..." class="full-width" style="margin-bottom:8px;">
+                            <select id="expenseCategoryFilter" class="full-width">
+                                <option value="">All categories</option>
+                                <option value="rent">Rent</option>
+                                <option value="utilities">Utilities</option>
+                                <option value="salary">Salary & Wages</option>
+                                <option value="equipment">Equipment & Supplies</option>
+                                <option value="maintenance">Maintenance & Repairs</option>
+                                <option value="transportation">Transportation</option>
+                                <option value="advertising">Advertising & Marketing</option>
+                                <option value="insurance">Insurance</option>
+                                <option value="miscellaneous">Miscellaneous</option>
+                            </select>
+                        </div>
+                        <table id="expensesTable" class="expenses-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount (₹)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expensesBody">
+                                <tr><td colspan="5" style="text-align:center;color:#999;">No expenses found. Click 'Add Expense' to get started.</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchases Page -->
+        <div class="page" id="purchases">
+            <h1>Purchase Records</h1>
+            <div class="purchases-layout">
+                <!-- Left: Purchase Form -->
+                <div class="purchases-left">
+                    <section class="card">
+                        <h2>Record New Purchase</h2>
+                        <form id="purchaseForm">
+                            <div class="form-group">
+                                <label>Supplier <span class="required">*</span></label>
+                                <div class="supplier-selector">
+                                    <select id="purchaseSupplier" required>
+                                        <option value="">Select supplier...</option>
+                                    </select>
+                                    <button type="button" id="addSupplierBtn" class="btn-small">+ Add</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Product <span class="required">*</span></label>
+                                <select id="purchaseItem" required>
+                                    <option value="">Select product...</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Quantity <span class="required">*</span></label>
+                                    <input id="purchaseQty" type="number" step="0.01" min="0.01" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Cost/Unit (₹) <span class="required">*</span></label>
+                                    <input id="purchaseCost" type="number" step="0.01" min="0" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Purchase Date</label>
+                                <input id="purchaseDate" type="date">
+                            </div>
+                            <div class="form-group">
+                                <label>Notes</label>
+                                <textarea id="purchaseNotes" placeholder="Invoice #, batch info, etc."></textarea>
+                            </div>
+                            <div class="modal-actions">
+                                <button type="submit" class="btn-primary full-width">Record Purchase</button>
+                            </div>
+                        </form>
+                    </section>
+
+                    <section class="card">
+                        <h2>Manage Suppliers</h2>
+                        <button id="newSupplierBtn" class="btn-primary full-width">+ New Supplier</button>
+                        <div id="suppliersList" style="margin-top:10px;">
+                            <p style="color:#999">Loading suppliers...</p>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right: Purchase History -->
+                <div class="purchases-right">
+                    <section class="card">
+                        <h2>Purchase History</h2>
+                        <div class="purchases-filters">
+                            <select id="purchaseFilterItem" class="full-width">
+                                <option value="">All products</option>
+                            </select>
+                        </div>
+                        <table id="purchasesTable" class="purchases-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Supplier</th>
+                                    <th>Quantity</th>
+                                    <th>Cost/Unit</th>
+                                    <th>Total Cost</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchasesBody">
+                                <tr><td colspan="7" style="text-align:center;color:#999;">Loading purchases...</td></tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section class="card">
+                        <h2>Purchase Summary</h2>
+                        <div class="purchase-summary">
+                            <div class="summary-item">
+                                <span>This Week:</span>
+                                <span id="summaryWeek">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>This Month:</span>
+                                <span id="summaryMonth">-</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+<!-- Modal for Add/Edit Item -->
+<div class="modal" id="itemModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Add Product</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form id="itemForm">
+            <div class="form-group">
+                <label>Name <span class="required">*</span></label>
+                <input id="modalName" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category (Optional)</label>
+                    <input id="modalCategory" placeholder="e.g., Snacks, Dairy">
+                </div>
+                <div class="form-group">
+                    <label>Product Type</label>
+                    <select id="modalType">
+                        <option value="packet">Packet/Unit</option>
+                        <option value="loose">Loose Item</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Barcode (Optional)</label>
+                    <input id="modalSku" placeholder="Scan or enter barcode">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Cost Price (₹) (Optional)</label>
+                    <input id="modalCost" type="number" step="0.01" placeholder="e.g., 8.50">
+                </div>
+                <div class="form-group">
+                    <label>Selling Price (₹)</label>
+                    <input id="modalPrice" type="number" step="0.01" required placeholder="e.g., 10.00">
+                </div>
+                <div class="form-group">
+                    <label>MRP (₹) (Optional)</label>
+                    <input id="modalMrp" type="number" step="0.01" value="0" placeholder="e.g., 12.00">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Weight / Base Quantity (Optional)</label>
+                    <input id="modalBaseQty" placeholder="e.g., 1kg, 500ml, 1 pack">
+                </div>
+                <div class="form-group">
+                    <label>Supplier (Optional)</label>
+                    <select id="modalSupplier">
+                        <option value="">Select supplier...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Current Stock Level</label>
+                    <input id="modalQuantity" type="number" step="0.01" value="0">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Low Stock Threshold (Optional)</label>
+                    <input id="modalReorderThreshold" type="number" step="0.01" value="5">
+                </div>
+                <div class="form-group">
+                    <label>Batch No. (Optional)</label>
+                    <input id="modalBatchNo" placeholder="e.g., B12345">
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date (Optional)</label>
+                    <input id="modalExpiryDate" type="date">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="modalDescription"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="modalSaveBtn" type="submit" class="btn-primary">Save</button>
+                <button type="button" class="btn-secondary" id="modalCancelBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Edit Purchase -->
+<div class="modal" id="purchaseModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="purchaseModalTitle">Edit Purchase</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form id="purchaseEditForm">
+            <div class="form-group">
+                <label>Quantity</label>
+                <input id="editPurchaseQty" type="number" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Cost per Unit (₹)</label>
+                <input id="editPurchaseCost" type="number" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label>Purchase Date</label>
+                <input id="editPurchaseDate" type="date">
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="editPurchaseNotes"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <button type="button" class="btn-secondary" id="editPurchaseCancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Customer -->
+<div class="modal" id="customerModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add/Edit Customer</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form id="customerForm">
+            <div class="form-group">
+                <label>Phone <span class="required">*</span></label>
+                <input id="custPhone" type="tel" required>
+            </div>
+            <div class="form-group">
+                <label>Name <span class="required">*</span></label>
+                <input id="custName" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input id="custEmail" type="email">
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary">Save Customer</button>
+                <button type="button" class="btn-secondary" id="custCancelBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal for Bill Print -->
+<div class="modal" id="billModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Bill #<span id="billNumber">0</span></h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div id="billContent" style="padding:20px;">
+            <p>Loading bill...</p>
+        </div>
+        <div class="modal-actions">
+            <button onclick="window.print()" class="btn-primary">Print</button>
+            <button onclick="shareBill()" class="btn-secondary">Share</button>
+        </div>
+    </div>
+</div>
+
+        <!-- Reports Page -->
+        <div class="page" id="reports">
+            <h1>Reports & Analytics</h1>
+            <section class="card">
+                <h2>Sales Trend (Last 7 days)</h2>
+                <div id="salesTrendChart" class="chart" style="height:200px;"></div>
+            </section>
+            <div class="reports-grid">
+                <section class="card">
+                    <h2>Top Products (30 days)</h2>
+                    <div id="topProductsChart" class="chart" style="height:200px;"></div>
+                </section>
+                <section class="card">
+                    <h2>Peak Hours (Last 7 days)</h2>
+                    <div id="peakHoursChart" class="chart" style="height:200px;"></div>
+                </section>
+            </div>
+            <section class="card">
+                <h2>Slow Moving Products (30 days)</h2>
+                <div id="slowMovingProducts" style="min-height:220px;padding:8px;background:var(--panel-bg);border-radius:8px;"></div>
+            </section>
+            <div class="reports-grid">
+                <section class="card" style="flex:1 1 60%">
+                    <h2>Sales Heatmap (by Day / Hour)</h2>
+                    <p class="chart-subtitle">Intensity shows sales volume — hover a cell for details.</p>
+                    <div id="salesHeatmap" style="width:100%;height:260px;overflow:auto;padding:8px;background:var(--panel-bg);border-radius:8px;"></div>
+                </section>
+                <section class="card" style="flex:1 1 38%">
+                    <h2>Profit Margins</h2>
+                    <p class="chart-subtitle">Top products by revenue with profit and margin.</p>
+                    <div id="profitMargins" style="max-height:300px;overflow:auto;"></div>
+                </section>
+            </div>
+            <section class="card">
+                <h2>Recent Transactions</h2>
+                <table class="items-table" id="recentBillsTable">
+                    <thead>
+                        <tr><th>Date</th><th>Bill #</th><th>Customer</th><th>Total</th><th>Payment</th><th>Items</th></tr>
+                    </thead>
+                    <tbody id="recentBillsBody"><tr><td colspan="6" style="text-align:center;color:#999">Loading...</td></tr></tbody>
+                </table>
+            </section>
+            
+            <section class="card">
+                <h2>Pending Dues 📋</h2>
+                <p style="color:#999;font-size:13px;">Outstanding customer payments from partial payment bills</p>
+                <table class="items-table" style="width:100%;font-size:13px;">
+                    <thead><tr><th>Date</th><th>Customer</th><th>Phone</th><th>Bill #</th><th>Bill Total</th><th>Due Amount</th><th>Paid</th><th>Status</th></tr></thead>
+                    <tbody id="pendingDuesBody"><tr><td colspan="8" style="text-align:center;color:#999">Loading...</td></tr></tbody>
+                </table>
+            </section>
+            
+            <section class="card" id="debitsSection">
+                <h2>Debits</h2>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;">
+                    <p style="margin:0;color:#999;">Recent customer debits recorded in the system.</p>
+                    <div style="display:flex;gap:8px;">
+                        <input id="debitsFilterPhone" placeholder="Filter by phone" style="padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,.08);">
+                        <button id="refreshDebitsBtn" class="btn-secondary">Refresh</button>
+                    </div>
+                </div>
+                <table class="items-table" style="width:100%;font-size:13px;">
+                    <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Amount</th><th>Total</th><th>Bill ID</th><th>Notes</th></tr></thead>
+                    <tbody id="debitsBody"><tr><td colspan="7" style="text-align:center;color:#999">Loading...</td></tr></tbody>
+                </table>
+            </section>
+
+            <section class="card">
+                <h2>Returns 📦</h2>
+                <p style="color:#999;font-size:13px;">Customer returns and refunds</p>
+                <div style="margin-bottom:12px;">
+                    <button id="openReturnModalBtn" class="btn-primary">+ New Return</button>
+                </div>
+                <table class="items-table" style="width:100%;font-size:13px;">
+                    <thead><tr><th>Date</th><th>Bill #</th><th>Item</th><th>Qty Returned</th><th>Refund</th><th>Reason</th></tr></thead>
+                    <tbody id="returnsBody"><tr><td colspan="6" style="text-align:center;color:#999">Loading...</td></tr></tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Returns + Exchange Page -->
+        <div class="page" id="returns">
+            <h1>Returns & Exchanges</h1>
+            <div style="display:flex;gap:16px;margin-bottom:16px;">
+                <button id="returnsCashBtn" class="btn-primary" style="flex:1;">💵 New Cash Refund</button>
+                <button id="returnsExchangeBtn" class="btn-primary" style="flex:1;">🔄 New Exchange</button>
+            </div>
+
+            <!-- Returns History -->
+            <section class="card">
+                <h2>Recent Returns & Exchanges</h2>
+                <table class="items-table" style="width:100%;font-size:12px;">
+                    <thead><tr><th>Date</th><th>Bill #</th><th>Product</th><th>Qty</th><th>Refund</th><th>Type</th><th>Exchange Bill</th></tr></thead>
+                    <tbody id="returnsHistoryBody"><tr><td colspan="7" style="text-align:center;color:#999">Loading...</td></tr></tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settings">
+            <h1>Settings</h1>
+            <section class="card">
+                <h2>Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Owner Name</label>
+                        <input id="profileOwner" placeholder="Owner name">
+                    </div>
+                    <div class="form-group">
+                        <label>Store Name</label>
+                        <input id="profileStore" placeholder="Store name">
+                    </div>
+                    <div class="form-group">
+                        <label>Store Address</label>
+                        <input id="profileAddress" placeholder="Address">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input id="profilePhone" type="tel">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input id="profileEmail" type="email">
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn-primary">Save Profile</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card">
+                <h2>Stores</h2>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <button id="addStoreBtn" class="btn-primary">+ Add Store</button>
+                    <button id="refreshStoresBtn" class="btn-secondary">Refresh</button>
+                </div>
+                <div id="storesList">
+                    <p style="color:#999">Loading stores...</p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Subscription</h2>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <div>Plan: <strong id="currentPlan">free</strong></div>
+                    <button id="upgradeBtn" class="btn-primary">Upgrade to Pro</button>
+                    <button id="downgradeBtn" class="btn-secondary">Set Free</button>
+                </div>
+            </section>
+        </div>
+
+<!-- Modal for Add/Edit Supplier -->
+<div class="modal" id="supplierModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="supplierModalTitle">Add Supplier</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <form id="supplierForm">
+            <div class="form-group">
+                <label>Supplier Name <span class="required">*</span></label>
+                <input id="supplierName" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="supplierPhone" type="tel">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="supplierEmail" type="email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="supplierAddress"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea id="supplierNotes"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary">Save Supplier</button>
+                <button type="button" class="btn-secondary" id="supplierCancelBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Barcode Scanner Modal -->
+<div class="modal" id="barcodeScannerModal">
+    <div class="modal-content barcode-scanner-modal">
+        <div class="modal-header">
+            <h2>📱 Barcode Scanner</h2>
+            <button class="modal-close" onclick="closeBarcodeScanner()">&times;</button>
+        </div>
+        <div style="padding:20px;">
+            <div id="scannerContainer" style="position:relative;width:100%;max-width:400px;margin:0 auto;border-radius:8px;overflow:hidden;background:#000;">
+                <video id="videoElement" autoplay playsinline muted style="width:100%;height:auto;display:block;"></video>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:3px solid #9d5dff;width:200px;height:200px;border-radius:12px;opacity:0.5;"></div>
+            </div>
+            <div style="margin-top:16px;padding:12px;background:rgba(157,93,255,.1);border-radius:8px;border:1px solid rgba(157,93,255,.2);">
+                <p style="margin:0 0 8px 0;color:var(--text-light);font-size:14px;">
+                    <strong>Scanning for barcodes...</strong>
+                </p>
+                <p style="margin:0;color:var(--text-dark);font-size:12px;">
+                    Point your camera at the product barcode. The item will be automatically added to cart when scanned.
+                </p>
+                <div style="margin-top:12px;padding:8px;background:rgba(0,0,0,.2);border-radius:6px;">
+                    <p style="margin:0;color:var(--text-light);font-size:12px;" id="barcodeStatus">Initializing camera...</p>
+                </div>
+                <pre id="barcodeDebug" style="display:block;margin-top:8px;padding:8px;background:rgba(0,0,0,.4);border-radius:6px;color:#0f0;font-size:11px;max-height:120px;overflow:auto;">Debug log...</pre>
+                <!-- Manual barcode entry (hidden until needed) -->
+                <div id="barcodeManual" style="display:none;margin-top:10px;">
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <input id="barcodeManualInput" placeholder="Enter barcode manually" style="flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:inherit;">
+                        <button id="barcodeManualSubmit" class="btn-primary">Add</button>
+                        <button id="barcodeManualCancel" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;gap:8px;">
+                    <button id="toggleFlashBtn" class="btn-secondary" style="display:none;flex:1;">💡 Flash</button>
+                    <button id="scannerResetBtn" class="btn-secondary" style="flex:1;">↺ Reset</button>
+                    <button id="snapDecodeBtn" class="btn-primary" style="flex:1;">📸 Snap & Decode</button>
+                    <button onclick="closeBarcodeScanner()" class="btn-secondary" style="flex:1;">Close Scanner</button>
+                </div>
+                <div id="cameraControls" style="display:block;padding:8px;background:rgba(0,0,0,0.04);border-radius:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px;">
+                        <label style="margin:0">Zoom</label>
+                        <span id="zoomValue" style="font-family:monospace">—</span>
+                    </div>
+                    <input id="zoomSlider" type="range" min="1" max="1" step="0.1" value="1" style="width:100%;">
+                    <div style="height:8px"></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px;">
+                        <label style="margin:0">Focus</label>
+                        <span id="focusValue" style="font-family:monospace">—</span>
+                    </div>
+                    <input id="focusSlider" type="range" min="0" max="0" step="0.1" value="0" style="width:100%;">
+                    <div style="font-size:11px;color:#999;margin-top:6px;">Tap the video to autofocus. Use sliders for manual control when available.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Support Chat (floating) -->
+<button id="chatOpenBtn" class="chat-button" title="Ask AI Support">💬</button>
+
+<div id="loginModal" class="modal" style="display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);position:fixed;top:0;left:0;width:100%;height:100%;z-index:2020;">
+  <div class="modal-content" style="max-width:420px;width:100%;padding:24px;border-radius:12px;position:relative;">
+    <div class="modal-header">
+      <h2 id="loginModalTitle">Vendora Login</h2>
+    </div>
+    <div class="modal-body" style="margin-top:16px;">
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input id="loginUsername" type="text" placeholder="admin" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" placeholder="••••••••" style="width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;">
+      </div>
+      <div id="loginError" style="display:none;color:#d9534f;margin-top:12px;font-size:0.95rem;"></div>
+      <p id="authModeNote" style="margin:12px 0 0 0;color:#666;font-size:0.95rem;">Enter your username and password to sign in.</p>
+      <button id="loginSubmitBtn" class="btn-primary" style="width:100%;margin-top:16px;">Sign In</button>
+      <p style="margin-top:12px;text-align:center;font-size:0.95rem;color:#666;">
+        <a href="#" id="authToggleLink" style="color:#2196F3;text-decoration:none;">Need to create an account? Register</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="chatModal" class="chat-modal" style="display:none;">
+    <div class="chat-window">
+        <div class="chat-header">
+            <strong>AI Support Assistant</strong>
+            <button class="modal-close" id="chatCloseBtn">&times;</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot">Hi — ask me things like "Total sales today" or "How many packets of milk are left?"</div>
+        </div>
+        <div class="chat-footer">
+            <input id="chatInput" placeholder="Type your question and press Enter" />
+            <button id="chatSendBtn" class="btn-primary">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden input to capture keyboard-emulating barcode scanner input (USB scanner) -->
+<input id="barcodeInput" style="position:fixed;left:-9999px;top:auto;" autocomplete="off" placeholder="USB scanner input" />
+
+<!-- Toast container for non-blocking alerts -->
+<!-- Application JS -->
+<!-- QuaggaJS for barcode scanning -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<!-- ZXing (WASM-backed) for faster, more accurate decoding -->
+<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+<script src="app.js"></script>
+<script src="prompt_add_to_cart.js"></script>
+
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- Quantity Modal -->
+<div id="quantityModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Add to Cart with Quantity</h2>
+      <button class="modal-close" onclick="closeQuantityModal()">✕</button>
+    </div>
+
+    <form id="quantityForm" onsubmit="event.preventDefault(); addQuantityToCart();">
+      <!-- Price Display -->
+      <div class="form-group">
+        <label>Price per Kg/Unit (₹)</label>
+        <input id="qPrice" type="number" readonly>
+      </div>
+
+      <!-- Amount Entry (Optional) -->
+      <div class="form-group">
+        <label>Enter Amount (₹) <small style="color: #999;">(optional)</small></label>
+        <input id="qAmount" type="number" step="0.01" min="0" placeholder="Auto-calculates quantity" oninput="calculateQtyFromAmount()">
+      </div>
+
+      <!-- Quantity Entry -->
+      <div class="form-group">
+        <label>Enter Quantity</label>
+        <input id="qQty" type="number" step="0.01" min="0.01" placeholder="Enter quantity" required oninput="calculateAmountFromQty()">
+      </div>
+
+      <!-- Unit Selection (Dynamic based on item type) -->
+      <div class="form-group">
+        <label>Unit</label>
+        <select id="qUnit" onchange="updateUnitLabel()">
+          <option value="kg">Kilograms</option>
+          <option value="g">Grams</option>
+          <option value="packet">Packets</option>
+          <option value="units">Units</option>
+        </select>
+        <small id="unitHint" style="color: #999; display: block; margin-top: 4px;"></small>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary full-width">Add to Cart</button>
+        <button type="button" class="btn-secondary full-width" onclick="closeQuantityModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Quick Create Item Modal (for unknown barcodes) -->
+<div id="quickCreateModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Create New Product</h2>
+      <button class="modal-close" onclick="closeQuickCreateModal()">✕</button>
+    </div>
+    <form id="quickCreateForm" onsubmit="event.preventDefault(); saveQuickCreateItem();">
+      <div class="form-group">
+        <label>Barcode/SKU</label>
+        <input id="qcSku" type="text" placeholder="Auto-filled from scan" readonly>
+      </div>
+      <div class="form-group">
+        <label>Product Name *</label>
+        <input id="qcName" type="text" placeholder="e.g., Milk Packet" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Price (₹) *</label>
+        <input id="qcPrice" type="number" step="0.01" min="0" placeholder="Selling price" required>
+      </div>
+      <div class="form-group">
+        <label>MRP (₹)</label>
+        <input id="qcMrp" type="number" step="0.01" min="0" placeholder="Max Retail Price">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="qcType">
+          <option value="loose">Loose (kg/g)</option>
+          <option value="packet">Packet (units)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Initial Quantity</label>
+        <input id="qcQty" type="number" step="0.01" min="0.01" value="1" placeholder="Starting stock">
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary full-width">Create & Add to Cart</button>
+        <button type="button" class="btn-secondary full-width" onclick="closeQuickCreateModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- CSV Import Modal -->
+<div id="csvImportModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>📥 Bulk Import Products from CSV</h2>
+      <button class="modal-close" onclick="closeCsvImportModal()">✕</button>
+    </div>
+    <div style="padding: 20px;">
+      <!-- Instructions -->
+      <div style="background: rgba(157,93,255,.1); border: 1px solid rgba(157,93,255,.2); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+        <p style="margin: 0 0 8px 0;"><strong>CSV Format (required columns):</strong></p>
+        <code style="display: block; background: #000; color: #0f0; padding: 8px; border-radius: 4px; font-size: 12px; overflow-x: auto;">
+Name,Price,MRP,Type,Quantity,SKU<br/>
+Milk Packet,60,100,packet,50,MIL001<br/>
+Sugar,80,120,loose,100,SUG001
+        </code>
+        <p style="margin: 8px 0 0 0; font-size: 12px; color: #999;">
+          • <strong>Name:</strong> Product name (required)<br/>
+          • <strong>Price:</strong> Selling price (required)<br/>
+          • <strong>MRP:</strong> Max Retail Price<br/>
+          • <strong>Type:</strong> "loose" or "packet"<br/>
+          • <strong>Quantity:</strong> Starting stock<br/>
+          • <strong>SKU:</strong> Barcode/SKU (optional)
+        </p>
+      </div>
+
+      <!-- File Upload -->
+      <div class="form-group">
+        <label>Select CSV File</label>
+        <input id="csvFileInput" type="file" accept=".csv" placeholder="Choose CSV file">
+        <small style="color: #999; display: block; margin-top: 4px;">Supported formats: .csv (Excel, Google Sheets exported as CSV)</small>
+      </div>
+
+      <!-- Preview -->
+      <div id="csvPreview" style="display: none; margin-top: 16px;">
+        <label><strong>Preview:</strong></label>
+        <div id="csvPreviewTable" style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,.1); border-radius: 6px; padding: 8px;"></div>
+      </div>
+
+      <!-- Status -->
+      <div id="csvImportStatus" style="display: none; margin-top: 12px; padding: 12px; background: rgba(0,255,0,.1); border: 1px solid rgba(0,255,0,.2); border-radius: 6px; color: #0f0;"></div>
+      <div id="csvImportError" style="display: none; margin-top: 12px; padding: 12px; background: rgba(255,0,0,.1); border: 1px solid rgba(255,0,0,.2); border-radius: 6px; color: #f88;"></div>
+
+      <!-- Actions -->
+      <div class="modal-actions" style="margin-top: 16px;">
+        <button id="csvPreviewBtn" class="btn-secondary" onclick="previewCsv()">👁️ Preview</button>
+        <button id="csvImportBtn" class="btn-primary" onclick="importCsv()" style="display: none;">✅ Import</button>
+        <button class="btn-secondary" onclick="closeCsvImportModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Return Modal -->
+<div id="returnModal" class="modal">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <h2>📦 Create Return</h2>
+      <button class="modal-close" onclick="closeReturnModal()">&times;</button>
+    </div>
+    <form id="returnForm" onsubmit="event.preventDefault(); submitReturn();">
+      <div class="form-group">
+        <label>Bill # <span class="required">*</span></label>
+        <input id="returnBillId" type="number" placeholder="Enter bill number" required>
+      </div>
+      <div class="form-group">
+        <label>Item <span class="required">*</span></label>
+        <select id="returnItemSelect" required>
+          <option value="">Select item from bill...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Quantity Returned <span class="required">*</span></label>
+        <input id="returnQuantity" type="number" step="0.01" min="0.01" placeholder="Enter qty (supports decimals for loose items)" required>
+      </div>
+      <div class="form-group">
+        <label>Reason (optional)</label>
+        <select id="returnReason">
+          <option value="">Select reason...</option>
+          <option value="defective">Defective/Damaged</option>
+          <option value="expired">Expired</option>
+          <option value="not_satisfied">Customer not satisfied</option>
+          <option value="wrong_item">Wrong item delivered</option>
+          <option value="quality_issue">Quality issue</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div style="padding:12px;background:rgba(157,93,255,.08);border-radius:6px;margin-bottom:12px;">
+        <p style="margin:0;font-size:13px;color:#999;">
+          <strong>Refund:</strong> <span id="refundPreview">₹0.00</span> will be given to customer
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary full-width">✅ Create Return & Refund</button>
+        <button type="button" class="btn-secondary full-width" onclick="closeReturnModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Cash Refund Modal -->
+<div id="cashRefundModal" class="modal">
+  <div class="modal-content" style="max-width:700px;">
+    <div class="modal-header">
+      <h2>💵 Cash Refund</h2>
+      <button class="modal-close" onclick="closeCashRefundModal()">&times;</button>
+    </div>
+    <form id="cashRefundForm" onsubmit="event.preventDefault(); processCashRefund();">
+      <div class="form-group">
+        <label>Bill # <span class="required">*</span></label>
+        <input id="crBillId" type="number" placeholder="Enter bill number" required>
+      </div>
+      <div class="form-group">
+        <label>Product <span class="required">*</span></label>
+        <select id="crProductSelect" required>
+          <option value="">Select product from bill...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Quantity Returned <span class="required">*</span></label>
+        <input id="crQuantity" type="number" step="0.01" min="0.01" placeholder="e.g., 0.5 or 1.5" required>
+      </div>
+      <div style="padding:12px;background:rgba(76,175,80,.08);border-radius:6px;margin-bottom:12px;">
+        <p style="margin:0;font-size:14px;"><strong>Refund Amount:</strong> <span id="crRefundAmount" style="color:#4caf50;font-weight:700;">₹0.00</span></p>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary full-width">✅ Process Cash Refund</button>
+        <button type="button" class="btn-secondary full-width" onclick="closeCashRefundModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Exchange Modal -->
+<div id="exchangeModal" class="modal">
+  <div class="modal-content" style="max-width:900px;">
+    <div class="modal-header">
+      <h2>🔄 Exchange Items</h2>
+      <button class="modal-close" onclick="closeExchangeModal()">&times;</button>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <!-- Left: Return Product -->
+        <div>
+          <h3 style="margin-top:0;color:#9d5dff;">Step 1: Return Product</h3>
+          <div class="form-group">
+            <label>Bill # <span class="required">*</span></label>
+            <input id="exBillId" type="number" placeholder="Enter bill number" required>
+          </div>
+          <div class="form-group">
+            <label>Product <span class="required">*</span></label>
+            <select id="exProductSelect" required>
+              <option value="">Select product to return...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Quantity <span class="required">*</span></label>
+            <input id="exReturnQty" type="number" step="0.01" min="0.01" required>
+          </div>
+          <div style="padding:12px;background:rgba(255,152,0,.08);border-radius:6px;">
+            <p style="margin:0 0 6px 0;font-size:12px;color:#999;">Refund Balance:</p>
+            <p style="margin:0;font-size:16px;color:#ff9800;font-weight:700;">₹<span id="exRefundBalance">0.00</span></p>
+          </div>
+        </div>
+
+        <!-- Right: New Products -->
+        <div>
+          <h3 style="margin-top:0;color:#9d5dff;">Step 2: Select New Products</h3>
+          <div class="form-group">
+            <label>Product <span class="required">*</span></label>
+            <div style="display:flex;gap:8px;">
+              <select id="exNewProductSelect" style="flex:1;">
+                <option value="">Select product...</option>
+              </select>
+              <input id="exNewProductQty" type="number" step="0.01" min="0.01" placeholder="Qty" style="flex:0 0 80px;">
+              <button type="button" id="exAddProductBtn" class="btn-primary">Add</button>
+            </div>
+          </div>
+          <div id="exNewProductsList" style="border:1px solid rgba(0,0,0,.1);border-radius:6px;padding:12px;min-height:80px;max-height:200px;overflow-y:auto;">
+            <p style="color:#999;margin:0;text-align:center;">Products will appear here</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exchange Summary -->
+      <div style="margin-top:20px;padding:16px;background:rgba(0,0,0,.02);border-radius:6px;border:1px solid rgba(0,0,0,.08);">
+        <h4 style="margin-top:0;">Exchange Summary</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:14px;">
+          <div><strong>Refund Balance:</strong> <span id="exSummaryRefund" style="color:#ff9800;">₹0.00</span></div>
+          <div><strong>New Bill Total:</strong> <span id="exSummaryNewTotal" style="color:#2196F3;">₹0.00</span></div>
+          <div id="exDiffContainer" style="grid-column:1/-1;padding:12px;background:rgba(76,175,80,.08);border-radius:6px;border-left:3px solid #4caf50;">
+            <strong>Exchange Difference:</strong> <span id="exSummaryDiff" style="color:#4caf50;font-size:16px;">₹0.00</span>
+            <p id="exDiffNote" style="margin:8px 0 0 0;font-size:12px;color:#666;">Even exchange — no payment needed</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top:20px;">
+        <button type="button" id="exProcessBtn" class="btn-primary full-width" onclick="processExchange()">✅ Process Exchange</button>
+        <button type="button" class="btn-secondary full-width" onclick="closeExchangeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Actions
+
+</body>
+</html>
