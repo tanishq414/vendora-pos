@@ -1,9 +1,10 @@
-// API Wrapper removed. No backend API calls.
-
-// ...existing code...
-    loadBillingItems();
-  }
-}
+// NOTE: This entire file is DEAD CODE. It is not included via a <script>
+// tag in index.html - app.js has its own working versions of every
+// function defined below (loadDashboard, loadInventory, saveItem, etc).
+// It's kept only for reference. If you don't need it, delete this file
+// to avoid confusion; do not add it to index.html without first replacing
+// the undefined `inventoryApi` calls throughout with real API_BASE fetch
+// calls, matching the pattern used in app.js.
 
 // ===== DASHBOARD =====
 async function loadDashboard() {
@@ -51,10 +52,10 @@ function applyCategoryFilter(items) {
 
 async function loadInventoryCategories() {
   try {
-    // Backend API call removed
+    // Backend API call removed - was undefined 'res' variable, now a no-op
     const sel = document.getElementById('inventoryCategoryFilter');
     if (!sel) return;
-    sel.innerHTML = '<option value="">All Categories</option>' + (res && res.length ? res.map(c => `<option value="${c.category}">${c.category}</option>`).join('') : '');
+    sel.innerHTML = '<option value="">All Categories</option>';
     try {
       const saved = localStorage.getItem('inventoryCategory') || '';
       if (saved) { sel.value = saved; currentCategory = saved; }
