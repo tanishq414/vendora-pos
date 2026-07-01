@@ -256,6 +256,21 @@ mainApi.settings = {
   setSubscription: (plan) => fetch(`${API_BASE}/subscribe`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ plan }) }).then(r=>r.json())
 };
 
+// Purchases & Suppliers API (was missing - caused crashes on Record Purchase / Add-Edit-Delete Supplier)
+mainApi.purchase = (payload) => fetch(`${API_BASE}/purchase`, {
+  method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+}).then(r => r.json());
+mainApi.addSupplier = (payload) => fetch(`${API_BASE}/supplier`, {
+  method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+}).then(r => r.json());
+mainApi.updateSupplier = (id, payload) => fetch(`${API_BASE}/supplier/${id}`, {
+  method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+}).then(r => r.json());
+mainApi.deleteSupplier = (id) => fetch(`${API_BASE}/supplier/${id}`, {
+  method: 'DELETE'
+}).then(r => r.json());
+mainApi.suppliers = () => fetch(`${API_BASE}/suppliers`).then(r => r.json());
+
 // Direct fetch functions for core data
 async function getItems() { return fetch(`${API_BASE}/items`).then(r => r.json()); }
 async function getSuppliers() { return fetch(`${API_BASE}/suppliers`).then(r => r.json()); }
@@ -413,7 +428,7 @@ async function saveExpense() {
     // Check if in edit mode
     if (window.currentEditExpenseId) {
       // Update existing expense
-      const res = await fetch(`/expense/${window.currentEditExpenseId}`, {
+      const res = await fetch(`${API_BASE}/expense/${window.currentEditExpenseId}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
@@ -2090,7 +2105,7 @@ async function searchCustomer() {
   if (!phone) return;
 
   try {
-    const resp = await fetch(`/customer/${phone}`);
+    const resp = await fetch(`${API_BASE}/customer/${phone}`);
     if (!resp.ok) {
       // Customer not found or error
       const name = prompt('New customer. Enter name:');
@@ -2117,7 +2132,7 @@ async function searchCustomer() {
       
       // Fetch customer balance (credit/debt)
       try {
-        const balResp = await fetch(`/customer/${cust.id}/balance`);
+        const balResp = await fetch(`${API_BASE}/customer/${cust.id}/balance`);
         const balance = balResp.ok ? await balResp.json() : { balance: 0 };
         const balanceEl = document.getElementById('customerBalance');
         const balanceHintEl = document.getElementById('balanceHint');
@@ -2326,7 +2341,7 @@ async function generateBill() {
 
         if (balanceAdjustment !== 0) {
           try {
-            const balRes = await fetch(`/customer/${currentCustomer.id}/balance/adjust`, {
+            const balRes = await fetch(`${API_BASE}/customer/${currentCustomer.id}/balance/adjust`, {
               method: 'POST',
               headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({ amount: balanceAdjustment, reason })
@@ -3280,7 +3295,7 @@ async function matchAndRemoveProduct(qty, productName) {
 // Print & Share
 async function printBill() {
   if (!lastBillId) return alert('No bill to print');
-  let bill = await fetch(`/bill/${lastBillId}`).then(r => r.json()).catch(() => null);
+  let bill = await fetch(`${API_BASE}/bill/${lastBillId}`).then(r => r.json()).catch(() => null);
   if (!bill) return alert('Bill not found');
 
   // If backend didn't attach store/profile info, fetch it client-side so the printed bill shows header
@@ -3421,7 +3436,7 @@ function shareBill() {
   if (!lastBillId) return alert('No bill to share');
   (async () => {
     try {
-      const resp = await fetch(`/share/bill/${lastBillId}`);
+      const resp = await fetch(`${API_BASE}/share/bill/${lastBillId}`);
       if (!resp.ok) {
         showToast('Failed to prepare bill for sharing', 'error');
         return;
@@ -3460,7 +3475,7 @@ function shareBill() {
 // Share a stock alert for a given item id
 async function shareStockAlert(itemId) {
   try {
-    const resp = await fetch(`/share/stock-alert/${itemId}`);
+    const resp = await fetch(`${API_BASE}/share/stock-alert/${itemId}`);
     if (!resp.ok) {
       showToast('Failed to prepare stock alert', 'error');
       return;
@@ -3515,7 +3530,7 @@ async function loadBillItemsForReturn() {
   }
 
   try {
-    const bill = await fetch(`/bill/${billId}`).then(r => r.json());
+    const bill = await fetch(`${API_BASE}/bill/${billId}`).then(r => r.json());
     if (!bill || !bill.items) {
       showToast('Bill not found', 'error');
       return;
@@ -3881,7 +3896,7 @@ async function deletePurchase(purchaseId) {
   if (!confirm('Delete this purchase record? Stock will be decremented.')) return;
   
   try {
-    const result = await fetch(`/purchase/${purchaseId}`, { method: 'DELETE' }).then(r => r.json());
+    const result = await fetch(`${API_BASE}/purchase/${purchaseId}`, { method: 'DELETE' }).then(r => r.json());
     
     if (result.success) {
       alert(result.message || 'Purchase deleted');
@@ -4271,7 +4286,7 @@ document.getElementById('purchaseEditForm')?.addEventListener('submit', async (e
   if (!qty || isNaN(cost)) return alert('Quantity and cost are required');
 
   try {
-    const res = await fetch(`/purchase/${id}`, {
+    const res = await fetch(`${API_BASE}/purchase/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantity: qty, costPerUnit: cost, purchaseDate: date, notes })
@@ -4448,7 +4463,7 @@ async function loadCashRefundBillItems() {
   }
 
   try {
-    const resp = await fetch(`/bill-items/${billId}`);
+    const resp = await fetch(`${API_BASE}/bill-items/${billId}`);
     const contentType = resp.headers.get('content-type') || '';
     let res;
     if (contentType.includes('application/json')) {
@@ -4572,7 +4587,7 @@ async function loadExchangeReturnBillItems() {
   }
 
   try {
-    const resp = await fetch(`/bill-items/${billId}`);
+    const resp = await fetch(`${API_BASE}/bill-items/${billId}`);
     const contentType = resp.headers.get('content-type') || '';
     let res;
     if (contentType.includes('application/json')) {
@@ -4826,4 +4841,3 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('returnsCashBtn')?.addEventListener('click', openCashRefundModal);
   document.getElementById('returnsExchangeBtn')?.addEventListener('click', openExchangeModal);
 });
-
