@@ -1,10 +1,4 @@
 {
-  "devDependencies": {
-    "electron": "^40.1.0"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.99.2"
-  },
   "scripts": {
     "start": "cd new && npm start"
   }
