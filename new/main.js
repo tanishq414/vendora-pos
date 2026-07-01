@@ -47,159 +47,16 @@ ipcMain.handle('print-bill', async (event, billData) => {
   return { success: true };
 });
 
-// IPC: Create Bill (with tax, totals, invoice number, and stock update)
-ipcMain.handle('create-bill', async (event, billData) => {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.run('BEGIN IMMEDIATE TRANSACTION;', (beginErr) => {
-        if (beginErr) return reject(beginErr);
-        // Atomic invoice number fetch and increment
-        db.get('SELECT next_invoice FROM invoice_sequence WHERE id = 1', (seqErr, seqRow) => {
-          if (seqErr || !seqRow) {
-            db.run('ROLLBACK;');
-            return reject(seqErr || new Error('Invoice sequence not found'));
-          }
-          const invoiceNumber = seqRow.next_invoice;
-          db.run('UPDATE invoice_sequence SET next_invoice = ? WHERE id = 1', [invoiceNumber + 1], (updateErr) => {
-            if (updateErr) {
-              db.run('ROLLBACK;');
-              return reject(updateErr);
-            }
-            // Calculate totals and tax
-            const subtotal = billData.items.reduce((sum, item) => sum + (item.pricePerKg * item.weight), 0);
-            const tax = billData.taxRate ? subtotal * billData.taxRate : 0;
-            const total = subtotal + tax;
-            // Insert bill with atomic invoice number
-            db.run(`INSERT INTO bills (id, customerId, customerName, subtotal, discount, tax, total, payment_method, items_json, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [invoiceNumber, billData.customerId || null, billData.customerName || '', subtotal, billData.discount || 0, tax, total, billData.paymentMethod || '', JSON.stringify(billData.items), billData.notes || ''],
-              function(err) {
-                if (err) {
-                  db.run('ROLLBACK;');
-                  return reject(err);
-                }
-                // Insert sales and update stock synchronously
-                let errorOccurred = false;
-                for (const item of billData.items) {
-                  db.run(`INSERT INTO sales (itemId, weight, pricePerKg, costPerKg, total) VALUES (?, ?, ?, ?, ?)`,
-                    [item.id, item.weight, item.pricePerKg, item.costPerKg, item.pricePerKg * item.weight],
-                    (err) => {
-                      if (err) errorOccurred = true;
-                    });
-                  db.run(`UPDATE items SET quantity = quantity - ? WHERE id = ?`, [item.weight, item.id], (err) => {
-                    if (err) errorOccurred = true;
-                  });
-                  if (errorOccurred) break;
-                }
-                if (errorOccurred) {
-                  db.run('ROLLBACK;');
-                  return reject(new Error('Error updating sales or stock.'));
-                }
-                db.run('COMMIT;', (commitErr) => {
-                  if (commitErr) return reject(commitErr);
-                  resolve({ billId: invoiceNumber, subtotal, tax, total });
-                });
-              });
-          });
-        });
-      });
-    });
-  });
-});
-
-// IPC: Get next invoice number
-ipcMain.handle('get-next-invoice', async () => {
-  return new Promise((resolve, reject) => {
-    db.get('SELECT MAX(id) as maxId FROM bills', (err, row) => {
-      if (err) return reject(err);
-      resolve((row && row.maxId ? row.maxId + 1 : 1));
-    });
-  });
-});
-
-// IPC: Update stock for an item
-ipcMain.handle('update-stock', async (event, { itemId, quantity }) => {
-  return new Promise((resolve, reject) => {
-    db.run('UPDATE items SET quantity = ? WHERE id = ?', [quantity, itemId], (err) => {
-      if (err) return reject(err);
-      resolve(true);
-    });
-  });
-});
-
-// Add these IPC handlers for frontend integration
-// ipcMain.handle('add-item', async (event, itemData) => {
-//   return new Promise((resolve, reject) => {
-//     db.run(
-//       `INSERT INTO items (name, pricePerKg, mrp, costPerKg, quantity, type, sku, description, reorderThreshold, reorderQuantity, category, baseQuantity, supplierId, batchNo, expiryDate)
-//        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-//       [
-//         itemData.name,
-//         itemData.pricePerKg,
-//         itemData.mrp,
-//         itemData.costPerKg,
-//         itemData.quantity,
-//         itemData.type,
-//         itemData.sku,
-//         itemData.description,
-//         itemData.reorderThreshold,
-//         itemData.reorderQuantity,
-//         itemData.category,
-//         itemData.baseQuantity,
-//         itemData.supplierId,
-//         itemData.batchNo,
-//         itemData.expiryDate
-//       ],
-//       function (err) {
-//         if (err) return reject(err);
-//         resolve({ id: this.lastID });
-//       }
-//     );
-//   });
-// });
-
-// ipcMain.handle('get-purchases', async () => {
-//   return new Promise((resolve, reject) => {
-//     db.all('SELECT * FROM purchases', (err, rows) => {
-//       if (err) return reject(err);
-//       resolve(rows);
-//     });
-//   });
-// });
-
-// ipcMain.handle('get-items', async () => {
-//   return new Promise((resolve, reject) => {
-//     db.all('SELECT * FROM items', (err, rows) => {
-//       if (err) return reject(err);
-//       resolve(rows);
-//     });
-//   });
-// });
-
-// ipcMain.handle('get-suppliers', async () => {
-//   return new Promise((resolve, reject) => {
-//     db.all('SELECT * FROM suppliers', (err, rows) => {
-//       if (err) return reject(err);
-//       resolve(rows);
-//     });
-//   });
-// });
-
-// ipcMain.handle('get-dashboard', async () => {
-//   return new Promise((resolve, reject) => {
-//     db.get(
-//       `SELECT 
-//         (SELECT COUNT(*) FROM items) as itemCount,
-//         (SELECT COUNT(*) FROM suppliers) as supplierCount,
-//         (SELECT COUNT(*) FROM bills) as billCount,
-//         (SELECT SUM(total) FROM bills) as totalSales
-//       `,
-//       (err, row) => {
-//         if (err) return reject(err);
-//         resolve(row);
-//       }
-//     );
-//   });
-// });
+// NOTE: Billing, invoicing, and stock updates are handled entirely by the
+// Express server (new/backend/server.js, spawned below) via HTTP fetch()
+// calls from the frontend. The IPC handlers that used to live here
+// (create-bill, get-next-invoice, update-stock, plus several commented-out
+// stubs for add-item/get-purchases/get-items/get-suppliers/get-dashboard)
+// duplicated that logic against the SAME SQLite file from a second
+// connection in this process, which risked "database is locked" errors.
+// They were dead code - the frontend never called them - so they've been
+// removed. If main-process db access is needed in future, prefer calling
+// the server.js HTTP API instead of opening a second db connection.
 
 function createWindow() {
   mainWindow = new BrowserWindow({
