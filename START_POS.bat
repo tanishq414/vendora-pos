@@ -1,7 +1,7 @@
 @echo off
 title Vendora - Server Starter
 
-cd backend
+cd new\backend
 node server.js
 
 pause
