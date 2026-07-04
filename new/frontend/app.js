@@ -270,6 +270,9 @@ mainApi.deleteSupplier = (id) => fetch(`${API_BASE}/supplier/${id}`, {
   method: 'DELETE'
 }).then(r => r.json());
 mainApi.suppliers = () => fetch(`${API_BASE}/suppliers`).then(r => r.json());
+mainApi.addItem = (payload) => fetch(`${API_BASE}/items`, {
+  method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+}).then(r => r.json());
 
 // Direct fetch functions for core data
 async function getItems() { return fetch(`${API_BASE}/items`).then(r => r.json()); }
